@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Budget Planner</title>
+<style>
+body {
+  font-family: Arial;
+  background: #0f172a;
+  color: white;
+  text-align: center;
+}
+
+.container {
+  max-width: 400px;
+  margin: auto;
+  background: #1e293b;
+  padding: 20px;
+  border-radius: 10px;
+}
+
+input, button {
+  width: 90%;
+  padding: 10px;
+  margin: 8px;
+  border-radius: 5px;
+  border: none;
+}
+
+button {
+  background: #3b82f6;
+  color: white;
+  cursor: pointer;
+}
+
+.item {
+  display: flex;
+  justify-content: space-between;
+  background: #334155;
+  margin: 5px;
+  padding: 8px;
+  border-radius: 5px;
+}
+
+.delete {
+  color: red;
+  cursor: pointer;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h2>💰 Budget Planner</h2>
+
+  <input type="number" id="budget" placeholder="Set Monthly Budget">
+  <button onclick="setBudget()">Set Budget</button>
+
+  <h3>Total Budget: ₹<span id="totalBudget">0</span></h3>
+  <h3>Spent: ₹<span id="spent">0</span></h3>
+  <h3>Remaining: ₹<span id="remaining">0</span></h3>
+
+  <input type="text" id="desc" placeholder="Expense Name">
+  <input type="number" id="amount" placeholder="Amount">
+  <button onclick="addExpense()">Add Expense</button>
+
+  <div id="list"></div>
+</div>
+
+<script>
+let budget = localStorage.getItem("budget") || 0;
+let expenses = JSON.parse(localStorage.getItem("expenses2")) || [];
+
+function save() {
+  localStorage.setItem("budget", budget);
+  localStorage.setItem("expenses2", JSON.stringify(expenses));
+}
+
+function render() {
+  document.getElementById("totalBudget").innerText = budget;
+
+  let spent = 0;
+  const list = document.getElementById("list");
+  list.innerHTML = "";
+
+  expenses.forEach((e, i) => {
+    spent += e.amount;
+
+    const div = document.createElement("div");
+    div.className = "item";
+    div.innerHTML = `
+      ${e.desc} - ₹${e.amount}
+      <span class="delete" onclick="deleteExpense(${i})">❌</span>
+    `;
+    list.appendChild(div);
+  });
+
+  document.getElementById("spent").innerText = spent;
+  document.getElementById("remaining").innerText = budget - spent;
+}
+
+function setBudget() {
+  budget = Number(document.getElementById("budget").value);
+  save();
+  render();
+}
+
+function addExpense() {
+  const desc = document.getElementById("desc").value;
+  const amount = document.getElementById("amount").value;
+
+  if (!desc || !amount) return alert("Fill all fields");
+
+  expenses.push({ desc, amount: Number(amount) });
+  save();
+  render();
+
+  document.getElementById("desc").value = "";
+  document.getElementById("amount").value = "";
+}
+
+function deleteExpense(i) {
+  expenses.splice(i, 1);
+  save();
+  render();
+}
+
+render();
+</script>
+
+</body>
+</html>
